@@ -1,6 +1,6 @@
 # 🔭 TraceForge
 
-**Break a 20-service production system on purpose — then watch traces, metrics and logs tell you exactly where and why.**
+![TraceForge — 17 services, 11 languages, 17 failure flags, traces, metrics, logs, AI triage](docs/images/hero.svg)
 
 ![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-000000?logo=opentelemetry&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
@@ -28,6 +28,8 @@ v1 is the upstream system as-is: a human opens Jaeger and Grafana and hunts for
 the cause. v2 adds an incident-triage agent that does the first pass
 automatically. Both will be run against the same set of injected faults (one
 per failure flag below).
+
+![Evaluation loop: all flags off, inject fault, wait, diagnose with v1 and v2, score, recover](docs/images/eval-loop.svg)
 
 | Metric | v1 (human + dashboards) | v2 (triage agent) |
 | --- | --- | --- |
@@ -69,33 +71,7 @@ v1 makes the evidence available; a human still has to find it. When
 for error spans, follow them from `frontend` through `checkout` to `payment`, and
 cross-check the error rate in Prometheus. v2 automates that first pass.
 
-```text
-                       ┌──────────────────┐
-   alert / question ──▶│    Supervisor    │  rule-based routing
-                       └────────┬─────────┘
-             ┌──────────────────┼──────────────────┐
-             ▼                  ▼                  ▼
-    ┌────────────────┐ ┌────────────────┐ ┌────────────────┐
-    │  Trace Agent   │ │  Metrics Agent │ │   Log Agent    │
-    │                │ │                │ │                │
-    │ Jaeger API:    │ │ PromQL: error  │ │ OpenSearch:    │
-    │ error / slow   │ │ rate, p95      │ │ error logs     │
-    │ spans, service │ │ latency, CPU,  │ │ per service    │
-    │ call graph     │ │ memory deltas  │ │ + exceptions   │
-    └───────┬────────┘ └───────┬────────┘ └───────┬────────┘
-            └──────────────────┼──────────────────┘
-                               ▼
-                     ┌───────────────────┐
-                     │    Synthesize     │  LLM writes the diagnosis
-                     └─────────┬─────────┘
-                               ▼
-                     ┌───────────────────┐
-                     │   Verification    │  every claim must cite a
-                     │                   │  trace ID or metric query
-                     └─────────┬─────────┘
-                               ▼
-               root cause + evidence links
-```
+![v2 triage pipeline: supervisor routes to trace, metrics and log agents, then synthesis and verification](docs/images/triage-pipeline.svg)
 
 ### Design principles
 
@@ -111,37 +87,7 @@ evidence is flagged, not returned as fact.
 
 ## 🏗️ Architecture
 
-```text
-  Browser / Locust load generator
-              │
-              ▼
-     ┌─────────────────┐
-     │ Envoy (8080)    │  frontend-proxy: one port for every UI
-     └────────┬────────┘
-              ▼
-     ┌─────────────────┐      ┌──────────────┐
-     │ frontend        │─────▶│ product-     │──▶ PostgreSQL
-     │ Next.js         │      │ catalog (Go) │
-     └────────┬────────┘      └──────────────┘
-              ▼
-     ┌─────────────────┐  gRPC  ┌──────────────────────────────────────┐
-     │ checkout (Go)   │───────▶│ cart (.NET) → Valkey                 │
-     └────────┬────────┘        │ payment (Node) · shipping (Rust)     │
-              │                 │ currency (C++) · email (Ruby)        │
-              │                 │ quote (PHP)                          │
-              ▼                 └──────────────────────────────────────┘
-          ┌───────┐
-          │ Kafka │──▶ accounting (.NET) · fraud-detection (Kotlin)
-          └───────┘
-
-  every service ──OTLP──▶ OpenTelemetry Collector
-                              ├──▶ Jaeger      (traces)
-                              ├──▶ Prometheus  (metrics, incl. span metrics)
-                              ├──▶ OpenSearch  (logs)
-                              └──▶ Grafana     (dashboards over all three)
-
-  flagd ── feature flags ──▶ fault injection in any service
-```
+![TraceForge architecture: services, data stores, Kafka, flagd, and the OpenTelemetry Collector exporting to Jaeger, Prometheus, OpenSearch and Grafana](docs/images/architecture.svg)
 
 ---
 
@@ -253,6 +199,23 @@ docker compose --env-file .env --env-file .env.override -f compose.yaml -f compo
 4. In Grafana, open the span metrics dashboard and watch the payment error rate climb.
 
 Stop everything with `make stop`.
+
+---
+
+## 📸 Screenshots
+
+<!--
+Screenshots go in docs/images/screenshots/. Take them once the stack is running,
+then delete this comment wrapper so the table renders.
+
+| Storefront | Jaeger trace during paymentFailure |
+| --- | --- |
+| ![Storefront](docs/images/screenshots/storefront.png) | ![Jaeger](docs/images/screenshots/jaeger-payment-failure.png) |
+| **Grafana span metrics** | **Feature flag UI** |
+| ![Grafana](docs/images/screenshots/grafana-spanmetrics.png) | ![Flags](docs/images/screenshots/flagd-ui.png) |
+-->
+
+*Screenshots coming once the stack is running locally.*
 
 ---
 
