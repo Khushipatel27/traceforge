@@ -1,0 +1,7 @@
+{
+  "name": "traceforge",
+  "private": true,
+  "devDependencies": {
+    "markdownlint-cli": "^0.49.1"
+  }
+}
