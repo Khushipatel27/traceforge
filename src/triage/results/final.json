@@ -1,0 +1,2978 @@
+{
+ "started": 1791338807.8312502,
+ "model": "llama3.2",
+ "checkpoints": [
+  60,
+  120,
+  240
+ ],
+ "settle_s": 150,
+ "scenarios": [
+  {
+   "flag": "paymentFailure",
+   "variant": "50%",
+   "accept_services": [
+    "payment"
+   ],
+   "accept_types": [
+    "errors"
+   ],
+   "injected": 1791338961.8151543,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.14,
+      "answered_after_s": 60.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "payment",
+      "fault_type": "errors",
+      "summary": "The payment service is experiencing errors, with 5/5 failing traces originating from this service. This is causing a significant increase in errors, from 0.0/min to 7.5/min, as evidenced by trace_error_origin [E1].",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "710fae70f18acb4350e6bc43da30262d"
+       },
+       {
+        "kind": "trace",
+        "ref": "c9ee9e0708af638f5139935ce696a0a9"
+       },
+       {
+        "kind": "trace",
+        "ref": "966c37dd92bcb8cd94bfa0d4d18edb30"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "payment",
+       "fault_type": "errors"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "payment",
+        "score": 6,
+        "findings": [
+         "trace_error_origin: error originates here in 5/5 failing traces (0.0/min before -> 7.5/min)"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 5,
+       "base_error_traces": 0
+      },
+      "compute_s": 19.23,
+      "answered_after_s": 79.4,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "payment",
+      "fault_type": "errors",
+      "answered_after_s": 79.4,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": "checkout",
+      "fault_type": "errors",
+      "summary": "checkout: error ratio 0.0% -> 31.8%",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "checkout",
+        "signal": "errors",
+        "score": 3.1818181818181817,
+        "detail": "error ratio 0.0% -> 31.8%"
+       },
+       {
+        "service": "payment",
+        "signal": "errors",
+        "score": 3.1818181818181817,
+        "detail": "error ratio 0.0% -> 31.8%"
+       },
+       {
+        "service": "checkout",
+        "signal": "latency",
+        "score": 1.2304551657010847,
+        "detail": "p95 1930ms -> 4529ms"
+       }
+      ],
+      "compute_s": 0.1,
+      "answered_after_s": 120.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "payment",
+      "fault_type": "errors",
+      "summary": "The payment service is experiencing a 31.8% error ratio, with 12/14 traces originating from this service and failing traces increasing by 7.2/min. This is affecting the checkout service, which is now experiencing a p95 latency of 4529ms, a 1333ms increase from the original value.",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "514024b13112da8eb3948b1a553b202f"
+       },
+       {
+        "kind": "trace",
+        "ref": "fbe48d9bfe143c19b797bb1c7ee31131"
+       },
+       {
+        "kind": "trace",
+        "ref": "5b4713cc9dfb46da124c54cd7efef357"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"} offset 120s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) * 0)"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "trace",
+        "ref": "c8fb5c661a88a22bab14cb1f09a12416"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E3 is about checkout, not payment",
+       "cited E4 is about checkout, not payment",
+       "number 1333 not found in evidence"
+      ],
+      "llm_choice": {
+       "service": "payment",
+       "fault_type": "errors"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "payment",
+        "score": 8.32,
+        "findings": [
+         "trace_error_origin: error originates here in 12/14 failing traces (0.0/min before -> 7.2/min)",
+         "errors: error ratio 0.0% -> 31.8%"
+        ]
+       },
+       {
+        "service": "checkout",
+        "score": 2.25,
+        "findings": [
+         "latency: p95 1930ms -> 4529ms",
+         "trace_self_time: mean self-time per span 113ms -> 238ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 51,
+       "base_traces": 55,
+       "error_traces": 14,
+       "base_error_traces": 0
+      },
+      "compute_s": 16.93,
+      "answered_after_s": 137,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "payment",
+      "fault_type": "errors",
+      "answered_after_s": 137,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": "checkout",
+      "fault_type": "errors",
+      "summary": "checkout: error ratio 0.0% -> 38.3%",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "checkout",
+        "signal": "errors",
+        "score": 3.829787234042553,
+        "detail": "error ratio 0.0% -> 38.3%"
+       },
+       {
+        "service": "payment",
+        "signal": "errors",
+        "score": 3.829787234042553,
+        "detail": "error ratio 0.0% -> 38.3%"
+       },
+       {
+        "service": "checkout",
+        "signal": "latency",
+        "score": 2.241223711386661,
+        "detail": "p95 1930ms -> 9125ms"
+       },
+       {
+        "service": "shipping",
+        "signal": "latency",
+        "score": 1.3156143209551587,
+        "detail": "p95 38ms -> 95ms"
+       }
+      ],
+      "compute_s": 0.11,
+      "answered_after_s": 240.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "payment",
+      "fault_type": "errors",
+      "summary": "The payment service is experiencing a 38.3% error ratio, with 20/22 traces failing, causing latency issues in the checkout service (p95 9125ms) and potentially impacting the overall system performance.",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "ba7bfb00d72f137fb006700f9cd4b270"
+       },
+       {
+        "kind": "trace",
+        "ref": "9b9a3483b598c2fe7bc9477d5fe3e897"
+       },
+       {
+        "kind": "trace",
+        "ref": "954a70ab1941335ab8eb625d399b14bc"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"} offset 240s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) * 0)"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E3 is about checkout, not payment"
+      ],
+      "llm_choice": {
+       "service": "payment",
+       "fault_type": "errors"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "payment",
+        "score": 9.28,
+        "findings": [
+         "trace_error_origin: error originates here in 20/22 failing traces (0.0/min before -> 5.5/min)",
+         "errors: error ratio 0.0% -> 38.3%"
+        ]
+       },
+       {
+        "service": "checkout",
+        "score": 2.24,
+        "findings": [
+         "latency: p95 1930ms -> 9125ms"
+        ]
+       },
+       {
+        "service": "shipping",
+        "score": 1.32,
+        "findings": [
+         "latency: p95 38ms -> 95ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 79,
+       "base_traces": 71,
+       "error_traces": 22,
+       "base_error_traces": 0
+      },
+      "compute_s": 23.11,
+      "answered_after_s": 263.2,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "payment",
+      "fault_type": "errors",
+      "answered_after_s": 263.2,
+      "service_ok": true,
+      "type_ok": true
+     }
+    }
+   ]
+  },
+  {
+   "flag": "paymentUnreachable",
+   "variant": "on",
+   "accept_services": [
+    "payment"
+   ],
+   "accept_types": [
+    "errors"
+   ],
+   "injected": 1791339375.1133611,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.25,
+      "answered_after_s": 60.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "frontend",
+      "fault_type": "errors",
+      "summary": "The frontend service is experiencing errors, with a rate of 2.0 errors per minute, causing issues that are reflected in the log_errors metric ([E1] log_errors). This is resulting in a significant increase in error logs, from 0.0 to 2.0 per minute ([E1] log_errors).",
+      "evidence": [
+       {
+        "kind": "logs",
+        "ref": "frontend"
+       },
+       {
+        "kind": "logs",
+        "ref": "frontend"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "frontend",
+       "fault_type": "errors"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "frontend",
+        "score": 0.79,
+        "findings": [
+         "log_errors: error logs 0.0/min -> 2.0/min; e.g. \"Checkout failed to place order\""
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 2,
+       "base_error_traces": 0
+      },
+      "compute_s": 20.34,
+      "answered_after_s": 80.6,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "frontend",
+      "fault_type": "errors",
+      "answered_after_s": 80.6,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.19,
+      "answered_after_s": 120.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "payment",
+      "fault_type": "errors",
+      "summary": "The payment service is experiencing errors, with 7/7 failing traces, resulting in a 4.2/min error rate. This issue affects the entire system, as the error originates here in 7/7 failing traces ([E1]).",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "5dcebf031a989389bf159c7d87bc9557"
+       },
+       {
+        "kind": "trace",
+        "ref": "152e49e79d97e3737b2fed3eb56fb087"
+       },
+       {
+        "kind": "trace",
+        "ref": "7487cf31072abfd540ea3a7165b4d691"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "payment",
+       "fault_type": "errors"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "payment",
+        "score": 6,
+        "findings": [
+         "trace_error_origin: error originates here in 7/7 failing traces (0.0/min before -> 4.2/min)"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 7,
+       "base_error_traces": 0
+      },
+      "compute_s": 12.35,
+      "answered_after_s": 132.5,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "payment",
+      "fault_type": "errors",
+      "answered_after_s": 132.5,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": "checkout",
+      "fault_type": "errors",
+      "summary": "checkout: error ratio 0.0% -> 64.5%",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "checkout",
+        "signal": "errors",
+        "score": 6.451612903225806,
+        "detail": "error ratio 0.0% -> 64.5%"
+       }
+      ],
+      "compute_s": 0.53,
+      "answered_after_s": 240.6,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "payment",
+      "fault_type": "errors",
+      "summary": "The payment service is experiencing errors, with 20/20 failing traces, indicating a significant increase in errors (E1). This is affecting the checkout service, where the mean self-time per span increased from 118ms to 547ms (E2).",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "77078827d5bc743b40507da73cb583eb"
+       },
+       {
+        "kind": "trace",
+        "ref": "92cde35fcabcc6bb03680995dde661ff"
+       },
+       {
+        "kind": "trace",
+        "ref": "99f90665f0dae14c092a72d7731ffef9"
+       },
+       {
+        "kind": "trace",
+        "ref": "85d0302dfd7afaf4190da9defce19891"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E2 is about checkout, not payment"
+      ],
+      "llm_choice": {
+       "service": "payment",
+       "fault_type": "errors"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "payment",
+        "score": 6,
+        "findings": [
+         "trace_error_origin: error originates here in 20/20 failing traces (0.0/min before -> 5.4/min)"
+        ]
+       },
+       {
+        "service": "checkout",
+        "score": 2.12,
+        "findings": [
+         "trace_self_time: mean self-time per span 118ms -> 547ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 55,
+       "base_traces": 53,
+       "error_traces": 20,
+       "base_error_traces": 0
+      },
+      "compute_s": 37.44,
+      "answered_after_s": 278.1,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "payment",
+      "fault_type": "errors",
+      "answered_after_s": 278.1,
+      "service_ok": true,
+      "type_ok": true
+     }
+    }
+   ]
+  },
+  {
+   "flag": "cartFailure",
+   "variant": "50%",
+   "accept_services": [
+    "cart"
+   ],
+   "accept_types": [
+    "errors"
+   ],
+   "injected": 1791339804.636724,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.37,
+      "answered_after_s": 60.4,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 3.09,
+      "answered_after_s": 63.4,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 63.4,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.05,
+      "answered_after_s": 120,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 1.4,
+      "answered_after_s": 121.4,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 121.4,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.04,
+      "answered_after_s": 240,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 2,
+       "base_error_traces": 0
+      },
+      "compute_s": 2.35,
+      "answered_after_s": 242.4,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 242.4,
+      "service_ok": false,
+      "type_ok": false
+     }
+    }
+   ]
+  },
+  {
+   "flag": "adFailure",
+   "variant": "on",
+   "accept_services": [
+    "ad"
+   ],
+   "accept_types": [
+    "errors"
+   ],
+   "injected": 1791340197.0434706,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.04,
+      "answered_after_s": 60,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "ad",
+      "fault_type": "errors",
+      "summary": "The ad service is experiencing errors, with 5/5 failing traces, resulting in a 7.5x increase in errors per minute.",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "602e5846c600c807cc033fe39a97e39c"
+       },
+       {
+        "kind": "trace",
+        "ref": "385119cbe25fbeef0052b0be3232b67f"
+       },
+       {
+        "kind": "trace",
+        "ref": "a107f25b56828e2d01c18d27133ec7f7"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "ad",
+       "fault_type": "errors"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "ad",
+        "score": 6,
+        "findings": [
+         "trace_error_origin: error originates here in 5/5 failing traces (0.0/min before -> 7.5/min)"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 5,
+       "base_error_traces": 0
+      },
+      "compute_s": 14.73,
+      "answered_after_s": 74.8,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "ad",
+      "fault_type": "errors",
+      "answered_after_s": 74.8,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": "ad",
+      "fault_type": "errors",
+      "summary": "ad: error ratio 0.0% -> 8.0%",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "ad",
+        "signal": "errors",
+        "score": 0.7954545454545454,
+        "detail": "error ratio 0.0% -> 8.0%"
+       }
+      ],
+      "compute_s": 0.25,
+      "answered_after_s": 120.2,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2": {
+      "service": "ad",
+      "fault_type": "errors",
+      "summary": "The ad service is experiencing errors, with a 7/7 failing trace rate and an error ratio of 8.0%.",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "31209966cd22fd88998eeb70a2399007"
+       },
+       {
+        "kind": "trace",
+        "ref": "5dc25eeeede2bfe810f0f3909cda7780"
+       },
+       {
+        "kind": "trace",
+        "ref": "602e5846c600c807cc033fe39a97e39c"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"} offset 120s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) * 0)"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "ad",
+       "fault_type": "errors"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "ad",
+        "score": 6.8,
+        "findings": [
+         "trace_error_origin: error originates here in 7/7 failing traces (0.0/min before -> 4.2/min)",
+         "errors: error ratio 0.0% -> 8.0%"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 60,
+       "base_traces": 60,
+       "error_traces": 7,
+       "base_error_traces": 0
+      },
+      "compute_s": 37.89,
+      "answered_after_s": 158.1,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "ad",
+      "fault_type": "errors",
+      "answered_after_s": 158.1,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": "ad",
+      "fault_type": "errors",
+      "summary": "ad: error ratio 0.0% -> 7.0%",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "ad",
+        "signal": "errors",
+        "score": 0.6962025316455696,
+        "detail": "error ratio 0.0% -> 7.0%"
+       }
+      ],
+      "compute_s": 0.14,
+      "answered_after_s": 240.2,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2": {
+      "service": "ad",
+      "fault_type": "errors",
+      "summary": "The ad service is experiencing errors, with a 7.0% error ratio, causing 11/17 of all traces to fail. This is supported by evidence [E1] and [E2].",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "e3dda10d1cd2ceac28aebf01ab753122"
+       },
+       {
+        "kind": "trace",
+        "ref": "35950539d636107e8b570e98103e53a7"
+       },
+       {
+        "kind": "trace",
+        "ref": "fc288a3e033fd2e48a8b1ae27ab94b6b"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"} offset 240s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) * 0)"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "ad",
+       "fault_type": "errors"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "ad",
+        "score": 4.58,
+        "findings": [
+         "trace_error_origin: error originates here in 11/17 failing traces (0.0/min before -> 3.0/min)",
+         "errors: error ratio 0.0% -> 7.0%"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 58,
+       "base_traces": 60,
+       "error_traces": 17,
+       "base_error_traces": 0
+      },
+      "compute_s": 16.65,
+      "answered_after_s": 256.8,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "ad",
+      "fault_type": "errors",
+      "answered_after_s": 256.8,
+      "service_ok": true,
+      "type_ok": true
+     }
+    }
+   ]
+  },
+  {
+   "flag": "productCatalogLockContention",
+   "variant": "on",
+   "accept_services": [
+    "product-catalog",
+    "astronomy-db"
+   ],
+   "accept_types": [
+    "latency"
+   ],
+   "injected": 1791345695.7596986,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": "recommendation",
+      "fault_type": "latency",
+      "summary": "recommendation: p95 8ms -> 15000ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "recommendation",
+        "signal": "latency",
+        "score": 10.891896860208124,
+        "detail": "p95 8ms -> 15000ms"
+       },
+       {
+        "service": "product-catalog",
+        "signal": "latency",
+        "score": 8.557255894256798,
+        "detail": "p95 40ms -> 15000ms"
+       },
+       {
+        "service": "frontend",
+        "signal": "latency",
+        "score": 7.2805999609467795,
+        "detail": "p95 44ms -> 6875ms"
+       },
+       {
+        "service": "frontend-proxy",
+        "signal": "latency",
+        "score": 5.575485200814115,
+        "detail": "p95 44ms -> 2078ms"
+       }
+      ],
+      "compute_s": 0.28,
+      "answered_after_s": 60.3,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "recommendation",
+      "fault_type": "latency",
+      "summary": "The recommendation service experienced a latency spike from 8ms to 15000ms, causing a ripple effect on downstream services such as product-catalog, astronomy-db, and frontend, with p95 latency values ranging from 40ms to 15000ms.",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "trace",
+        "ref": "f40858aed5d4c9e347a1c3a003d20a0c"
+       },
+       {
+        "kind": "promql",
+        "ref": "max by (container_name) (max_over_time(container_memory_usage_total_bytes[60s]))"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E2 is about product-catalog, not recommendation",
+       "cited E3 is about astronomy-db, not recommendation",
+       "cited E4 is about astronomy-db, not recommendation",
+       "cited E5 is about frontend, not recommendation",
+       "cited E6 is about frontend-proxy, not recommendation"
+      ],
+      "llm_choice": {
+       "service": "astronomy-db",
+       "fault_type": "memory"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "recommendation",
+        "score": 10.89,
+        "findings": [
+         "latency: p95 8ms -> 15000ms"
+        ]
+       },
+       {
+        "service": "product-catalog",
+        "score": 8.56,
+        "findings": [
+         "latency: p95 40ms -> 15000ms"
+        ]
+       },
+       {
+        "service": "astronomy-db",
+        "score": 8.41,
+        "findings": [
+         "trace_self_time: mean self-time per span 1ms -> 909ms",
+         "memory: memory 50MB -> 81MB"
+        ]
+       },
+       {
+        "service": "frontend",
+        "score": 7.28,
+        "findings": [
+         "latency: p95 44ms -> 6875ms"
+        ]
+       },
+       {
+        "service": "frontend-proxy",
+        "score": 5.58,
+        "findings": [
+         "latency: p95 44ms -> 2078ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 74,
+       "base_traces": 73,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 22.44,
+      "answered_after_s": 82.7,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "astronomy-db",
+      "fault_type": "memory",
+      "answered_after_s": 82.7,
+      "service_ok": true,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": "recommendation",
+      "fault_type": "latency",
+      "summary": "recommendation: p95 8ms -> 15000ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "recommendation",
+        "signal": "latency",
+        "score": 10.891896860208124,
+        "detail": "p95 8ms -> 15000ms"
+       },
+       {
+        "service": "product-catalog",
+        "signal": "latency",
+        "score": 8.557255894256798,
+        "detail": "p95 40ms -> 15000ms"
+       },
+       {
+        "service": "frontend",
+        "signal": "latency",
+        "score": 8.344424286054203,
+        "detail": "p95 44ms -> 14372ms"
+       },
+       {
+        "service": "frontend-proxy",
+        "signal": "latency",
+        "score": 6.979540062415027,
+        "detail": "p95 44ms -> 5500ms"
+       },
+       {
+        "service": "shipping",
+        "signal": "latency",
+        "score": 2.846194663920963,
+        "detail": "p95 44ms -> 320ms"
+       }
+      ],
+      "compute_s": 0.4,
+      "answered_after_s": 120.4,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "frontend",
+      "fault_type": "latency",
+      "summary": "The frontend service is experiencing a significant increase in p95 latency (14372ms) and trace_self_time (583ms), causing delays in the product-catalog service (p95 latency: 15000ms) and the recommendation service (latency: 15000ms). The frontend service is also experiencing a high error ratio (3.3%) and increased memory usage (81MB), which may impact the overall system stability.",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "trace",
+        "ref": "29e13b6a7c4f49743b5fe02a80c48a08"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "trace",
+        "ref": "78b381917e5b38b9a201edea0edb53ee"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"} offset 120s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\",status_code=\"STATUS_CODE_ERROR\"}) * 0)"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E3 is about product-catalog, not frontend",
+       "cited E5 is about recommendation, not frontend",
+       "cited E6 is about astronomy-db, not frontend",
+       "cited E8 is about frontend-proxy, not frontend",
+       "cited E9 is about frontend-proxy, not frontend"
+      ],
+      "llm_choice": {
+       "service": "frontend-proxy",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "frontend",
+        "score": 13.99,
+        "findings": [
+         "latency: p95 44ms -> 14372ms",
+         "trace_self_time: mean self-time per span 2ms -> 583ms"
+        ]
+       },
+       {
+        "service": "product-catalog",
+        "score": 13.6,
+        "findings": [
+         "latency: p95 40ms -> 15000ms",
+         "trace_self_time: mean self-time per span 5ms -> 485ms"
+        ]
+       },
+       {
+        "service": "recommendation",
+        "score": 10.89,
+        "findings": [
+         "latency: p95 8ms -> 15000ms"
+        ]
+       },
+       {
+        "service": "astronomy-db",
+        "score": 10.32,
+        "findings": [
+         "trace_self_time: mean self-time per span 1ms -> 3447ms",
+         "memory: memory 50MB -> 81MB"
+        ]
+       },
+       {
+        "service": "frontend-proxy",
+        "score": 7.31,
+        "findings": [
+         "latency: p95 44ms -> 5500ms",
+         "errors: error ratio 0.0% -> 3.3%"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 67,
+       "base_traces": 73,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 24.19,
+      "answered_after_s": 144.6,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "frontend-proxy",
+      "fault_type": "latency",
+      "answered_after_s": 144.6,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": "recommendation",
+      "fault_type": "latency",
+      "summary": "recommendation: p95 8ms -> 15000ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "recommendation",
+        "signal": "latency",
+        "score": 10.891896860208124,
+        "detail": "p95 8ms -> 15000ms"
+       },
+       {
+        "service": "product-catalog",
+        "signal": "latency",
+        "score": 8.557255894256798,
+        "detail": "p95 40ms -> 15000ms"
+       },
+       {
+        "service": "frontend",
+        "signal": "latency",
+        "score": 8.406130843030638,
+        "detail": "p95 44ms -> 15000ms"
+       },
+       {
+        "service": "frontend-proxy",
+        "signal": "latency",
+        "score": 7.586197634235513,
+        "detail": "p95 44ms -> 8375ms"
+       },
+       {
+        "service": "email",
+        "signal": "latency",
+        "score": 6.7162421151564065,
+        "detail": "p95 6ms -> 627ms"
+       }
+      ],
+      "compute_s": 0.22,
+      "answered_after_s": 240.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "recommendation",
+      "fault_type": "latency",
+      "summary": "The recommendation service experienced a latency spike from 8ms to 15000ms ([E1]), causing a significant impact on other services such as astronomy-db ([E2]), product-catalog ([E4]), frontend ([E5]), and frontend-proxy ([E6]) with increased latency from 40ms to 15000ms.",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "trace",
+        "ref": "b9cff2f05aeac408c5a9e9c4fc4d471e"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E2 is about astronomy-db, not recommendation",
+       "cited E4 is about product-catalog, not recommendation",
+       "cited E5 is about frontend, not recommendation",
+       "cited E6 is about frontend-proxy, not recommendation"
+      ],
+      "llm_choice": {
+       "service": "frontend-proxy",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "recommendation",
+        "score": 10.89,
+        "findings": [
+         "latency: p95 8ms -> 15000ms"
+        ]
+       },
+       {
+        "service": "astronomy-db",
+        "score": 10.68,
+        "findings": [
+         "trace_self_time: mean self-time per span 1ms -> 4226ms",
+         "memory: memory 50MB -> 82MB"
+        ]
+       },
+       {
+        "service": "product-catalog",
+        "score": 8.56,
+        "findings": [
+         "latency: p95 40ms -> 15000ms"
+        ]
+       },
+       {
+        "service": "frontend",
+        "score": 8.41,
+        "findings": [
+         "latency: p95 44ms -> 15000ms"
+        ]
+       },
+       {
+        "service": "frontend-proxy",
+        "score": 7.93,
+        "findings": [
+         "latency: p95 44ms -> 8375ms",
+         "errors: error ratio 0.0% -> 3.5%"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 66,
+       "base_traces": 73,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 20.55,
+      "answered_after_s": 260.8,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "frontend-proxy",
+      "fault_type": "latency",
+      "answered_after_s": 260.8,
+      "service_ok": false,
+      "type_ok": false
+     }
+    }
+   ]
+  },
+  {
+   "flag": "intlShippingSlowdown",
+   "variant": "5sec",
+   "accept_services": [
+    "shipping"
+   ],
+   "accept_types": [
+    "latency"
+   ],
+   "injected": 1791346106.6001787,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.19,
+      "answered_after_s": 60.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "cart",
+      "fault_type": "latency",
+      "summary": "The cart service experienced a significant increase in mean self-time per span from 0ms to 119217ms ([E1]), indicating a severe latency issue. This latency impact is further exacerbated by the substantial increase in request rates for the cart service ([E1], [E3], [E5]) and other services, such as product-catalog ([E3]) and frontend ([E5]).",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "d74f4205dee24a683ea1898228990171"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E3 is about product-catalog, not cart",
+       "cited E5 is about frontend, not cart"
+      ],
+      "llm_choice": {
+       "service": "cart",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "cart",
+        "score": 11.12,
+        "findings": [
+         "trace_self_time: mean self-time per span 0ms -> 119217ms",
+         "traffic: request rate 1.7/s -> 3.6/s"
+        ]
+       },
+       {
+        "service": "product-catalog",
+        "score": 1.07,
+        "findings": [
+         "traffic: request rate 6.1/s -> 12.9/s"
+        ]
+       },
+       {
+        "service": "recommendation",
+        "score": 1.05,
+        "findings": [
+         "traffic: request rate 0.9/s -> 1.9/s"
+        ]
+       },
+       {
+        "service": "frontend",
+        "score": 1.01,
+        "findings": [
+         "traffic: request rate 16.4/s -> 33.2/s"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 88,
+       "base_traces": 93,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 22.87,
+      "answered_after_s": 83.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "cart",
+      "fault_type": "latency",
+      "answered_after_s": 83.1,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.27,
+      "answered_after_s": 120.3,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "cart",
+      "fault_type": "traffic",
+      "summary": "The cart service is experiencing a traffic spike, with a request rate increasing from 1.7/s to 3.5/s ([E1]). This is affecting other services, as the increased traffic is causing a bottleneck ([E1]).",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "cart",
+       "fault_type": "traffic"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "cart",
+        "score": 1.09,
+        "findings": [
+         "traffic: request rate 1.7/s -> 3.5/s"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 54,
+       "base_traces": 57,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 16.88,
+      "answered_after_s": 137.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "cart",
+      "fault_type": "traffic",
+      "answered_after_s": 137.1,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": "shipping",
+      "fault_type": "latency",
+      "summary": "shipping: p95 36ms -> 138ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "shipping",
+        "signal": "latency",
+        "score": 1.949482472332988,
+        "detail": "p95 36ms -> 138ms"
+       }
+      ],
+      "compute_s": 0.23,
+      "answered_after_s": 240.2,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2": {
+      "service": "shipping",
+      "fault_type": "latency",
+      "summary": "The shipping service is experiencing a significant increase in mean self-time per span from 3ms to 274ms ([E1]) and p95 latency from 36ms to 138ms ([E2]), causing a substantial increase in request rate from 1.7/s to 3.9/s ([E3]) in the cart service, and a moderate increase in request rate from 1.0/s to 2.1/s in the currency service ([E4]).",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "9de6c0394158725e300a864382085df8"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E3 is about cart, not shipping",
+       "cited E4 is about currency, not shipping"
+      ],
+      "llm_choice": {
+       "service": "shipping",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "shipping",
+        "score": 6.41,
+        "findings": [
+         "trace_self_time: mean self-time per span 3ms -> 274ms",
+         "latency: p95 36ms -> 138ms"
+        ]
+       },
+       {
+        "service": "cart",
+        "score": 1.23,
+        "findings": [
+         "traffic: request rate 1.7/s -> 3.9/s"
+        ]
+       },
+       {
+        "service": "currency",
+        "score": 1.13,
+        "findings": [
+         "traffic: request rate 1.0/s -> 2.1/s"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 99,
+       "base_traces": 101,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 23.47,
+      "answered_after_s": 263.7,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "shipping",
+      "fault_type": "latency",
+      "answered_after_s": 263.7,
+      "service_ok": true,
+      "type_ok": true
+     }
+    }
+   ]
+  },
+  {
+   "flag": "adHighCpu",
+   "variant": "on",
+   "accept_services": [
+    "ad"
+   ],
+   "accept_types": [
+    "cpu"
+   ],
+   "injected": 1791346520.3531945,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": "cart",
+      "fault_type": "latency",
+      "summary": "cart: p95 16ms -> 532ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "cart",
+        "signal": "latency",
+        "score": 5.05528243550119,
+        "detail": "p95 16ms -> 532ms"
+       },
+       {
+        "service": "shipping",
+        "signal": "latency",
+        "score": 1.291808106511026,
+        "detail": "p95 40ms -> 99ms"
+       }
+      ],
+      "compute_s": 0.2,
+      "answered_after_s": 60.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "cart",
+      "fault_type": "latency",
+      "summary": "The cart service is experiencing a latency increase from 16ms to 532ms ([E1]) due to high self-time per span in the frontend service, which has increased from 19ms to 128ms ([E2]) and valkey-cart service, which has increased from 7ms to 63ms ([E3])",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "trace",
+        "ref": "3146dca50657c41d4aa82dfed288f94b"
+       },
+       {
+        "kind": "trace",
+        "ref": "e60661df6224fa1d5a0f96bf2349047e"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E2 is about frontend, not cart",
+       "cited E3 is about valkey-cart, not cart"
+      ],
+      "llm_choice": {
+       "service": "cart",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "cart",
+        "score": 5.06,
+        "findings": [
+         "latency: p95 16ms -> 532ms"
+        ]
+       },
+       {
+        "service": "frontend",
+        "score": 2.24,
+        "findings": [
+         "trace_self_time: mean self-time per span 19ms -> 128ms"
+        ]
+       },
+       {
+        "service": "valkey-cart",
+        "score": 2.14,
+        "findings": [
+         "trace_self_time: mean self-time per span 7ms -> 63ms"
+        ]
+       },
+       {
+        "service": "shipping",
+        "score": 1.29,
+        "findings": [
+         "latency: p95 40ms -> 99ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 71,
+       "base_traces": 83,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 21.11,
+      "answered_after_s": 81.3,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "cart",
+      "fault_type": "latency",
+      "answered_after_s": 81.3,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": "cart",
+      "fault_type": "latency",
+      "summary": "cart: p95 16ms -> 443ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "cart",
+        "signal": "latency",
+        "score": 4.791162888555019,
+        "detail": "p95 16ms -> 443ms"
+       }
+      ],
+      "compute_s": 0.17,
+      "answered_after_s": 120.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "cart",
+      "fault_type": "latency",
+      "summary": "The cart service is experiencing a latency spike, with a p95 value increasing from 16ms to 443ms ([E1]). This is affecting other services, as the CPU usage of the ad service has increased from 2.84 to 4.63 cores ([E2]).",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "promql",
+        "ref": "avg by (container_name) (avg_over_time(container_cpu_utilization_ratio[120s]))"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E2 is about ad, not cart"
+      ],
+      "llm_choice": {
+       "service": "cart",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "cart",
+        "score": 4.79,
+        "findings": [
+         "latency: p95 16ms -> 443ms"
+        ]
+       },
+       {
+        "service": "ad",
+        "score": 0.7,
+        "findings": [
+         "cpu: CPU 2.84 -> 4.63 cores"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 87,
+       "base_traces": 84,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 13.22,
+      "answered_after_s": 133.4,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "cart",
+      "fault_type": "latency",
+      "answered_after_s": 133.4,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": "shipping",
+      "fault_type": "latency",
+      "summary": "shipping: p95 40ms -> 120ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "shipping",
+        "signal": "latency",
+        "score": 1.5729898590550808,
+        "detail": "p95 40ms -> 120ms"
+       }
+      ],
+      "compute_s": 0.21,
+      "answered_after_s": 240.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "payment",
+      "fault_type": "memory",
+      "summary": "The payment service is experiencing a memory increase from 73MB to 110MB ([E1]) which is causing a latency increase from 40ms to 120ms ([E2]) in the shipping service.",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "max by (container_name) (max_over_time(container_memory_usage_total_bytes[240s]))"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E2 is about shipping, not payment"
+      ],
+      "llm_choice": {
+       "service": "shipping",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "payment",
+        "score": 1.73,
+        "findings": [
+         "memory: memory 73MB -> 110MB"
+        ]
+       },
+       {
+        "service": "shipping",
+        "score": 1.57,
+        "findings": [
+         "latency: p95 40ms -> 120ms"
+        ]
+       },
+       {
+        "service": "ad",
+        "score": 1.15,
+        "findings": [
+         "cpu: CPU 2.84 -> 6.32 cores"
+        ]
+       },
+       {
+        "service": "checkout",
+        "score": 1.03,
+        "findings": [
+         "trace_self_time: mean self-time per span 100ms -> 215ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 107,
+       "base_traces": 97,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 18.87,
+      "answered_after_s": 259.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "shipping",
+      "fault_type": "latency",
+      "answered_after_s": 259.1,
+      "service_ok": false,
+      "type_ok": false
+     }
+    }
+   ]
+  },
+  {
+   "flag": "adManualGc",
+   "variant": "on",
+   "accept_services": [
+    "ad"
+   ],
+   "accept_types": [
+    "latency",
+    "cpu"
+   ],
+   "injected": 1791346929.4954598,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.27,
+      "answered_after_s": 60.3,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "ad",
+      "fault_type": "latency",
+      "summary": "The ad service is experiencing a significant increase in mean self-time per span, from 1ms to 2676ms ([E1]), and a corresponding increase in memory usage, from 262MB to 309MB ([E2]). This latency issue affects the frontend service, which is experiencing a mean self-time per span of 107ms ([E3]).",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "54021168b9799749d753ceaf64323989"
+       },
+       {
+        "kind": "promql",
+        "ref": "max by (container_name) (max_over_time(container_memory_usage_total_bytes[60s]))"
+       },
+       {
+        "kind": "trace",
+        "ref": "0640dbc034ee5a7e082db3adbce80903"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E3 is about frontend, not ad"
+      ],
+      "llm_choice": {
+       "service": "ad",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "ad",
+        "score": 8.64,
+        "findings": [
+         "trace_self_time: mean self-time per span 1ms -> 2676ms",
+         "memory: memory 262MB -> 309MB"
+        ]
+       },
+       {
+        "service": "frontend",
+        "score": 3.39,
+        "findings": [
+         "trace_self_time: mean self-time per span 1ms -> 107ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 52,
+       "base_traces": 59,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 19.6,
+      "answered_after_s": 79.9,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "ad",
+      "fault_type": "latency",
+      "answered_after_s": 79.9,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": "ad",
+      "fault_type": "latency",
+      "summary": "ad: p95 28ms -> 9068ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "ad",
+        "signal": "latency",
+        "score": 8.318778577629818,
+        "detail": "p95 28ms -> 9068ms"
+       }
+      ],
+      "compute_s": 0.07,
+      "answered_after_s": 120.1,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2": {
+      "service": "ad",
+      "fault_type": "latency",
+      "summary": "The ad service is experiencing a latency spike, with a p95 value of 9068ms, indicating a significant increase in response time. This latency issue affects the frontend service, which is experiencing a mean self-time per span of 71ms, as evidenced by [E4].",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "trace",
+        "ref": "c57e152f35b9aad89de8912499152b86"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E4 is about frontend, not ad"
+      ],
+      "llm_choice": {
+       "service": "ad",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "ad",
+        "score": 16.88,
+        "findings": [
+         "latency: p95 28ms -> 9068ms",
+         "trace_self_time: mean self-time per span 1ms -> 2526ms",
+         "memory: memory 262MB -> 309MB"
+        ]
+       },
+       {
+        "service": "frontend",
+        "score": 2.86,
+        "findings": [
+         "trace_self_time: mean self-time per span 1ms -> 71ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 58,
+       "base_traces": 59,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 14.83,
+      "answered_after_s": 134.9,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "ad",
+      "fault_type": "latency",
+      "answered_after_s": 134.9,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": "ad",
+      "fault_type": "latency",
+      "summary": "ad: p95 28ms -> 9941ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "ad",
+        "signal": "latency",
+        "score": 8.451381855076612,
+        "detail": "p95 28ms -> 9941ms"
+       },
+       {
+        "service": "email",
+        "signal": "latency",
+        "score": 1.7369655941662057,
+        "detail": "p95 44ms -> 145ms"
+       }
+      ],
+      "compute_s": 0.11,
+      "answered_after_s": 240.1,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2": {
+      "service": "ad",
+      "fault_type": "latency",
+      "summary": "The ad service is experiencing a latency spike, with p95 values increasing from 28ms to 9941ms ([E1]), and trace_self_time increasing from 1ms to 1056ms ([E2]). This latency increase affects the email service, which is now experiencing latency p95 values of 44ms to 145ms ([E4]).",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "trace",
+        "ref": "bdb5561be3d0ca77b6665a226edf2ebf"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E4 is about email, not ad"
+      ],
+      "llm_choice": {
+       "service": "ad",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "ad",
+        "score": 15.76,
+        "findings": [
+         "latency: p95 28ms -> 9941ms",
+         "trace_self_time: mean self-time per span 1ms -> 1056ms",
+         "memory: memory 262MB -> 309MB"
+        ]
+       },
+       {
+        "service": "email",
+        "score": 1.74,
+        "findings": [
+         "latency: p95 44ms -> 145ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 88,
+       "base_traces": 83,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 19.65,
+      "answered_after_s": 259.8,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "ad",
+      "fault_type": "latency",
+      "answered_after_s": 259.8,
+      "service_ok": true,
+      "type_ok": true
+     }
+    }
+   ]
+  },
+  {
+   "flag": "kafkaQueueProblems",
+   "variant": "on",
+   "accept_services": [
+    "kafka",
+    "accounting",
+    "fraud-detection"
+   ],
+   "accept_types": [
+    "queue"
+   ],
+   "injected": 1791347339.4238124,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": "fraud-detection",
+      "fault_type": "latency",
+      "summary": "fraud-detection: p95 92ms -> 1343ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "fraud-detection",
+        "signal": "latency",
+        "score": 3.862711147039969,
+        "detail": "p95 92ms -> 1343ms"
+       }
+      ],
+      "compute_s": 0.2,
+      "answered_after_s": 60.2,
+      "service_ok": true,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "fraud-detection",
+      "fault_type": "latency",
+      "summary": "The fraud-detection service is experiencing a significant increase in mean self-time per span (887ms) and p95 latency (1343ms), indicating a severe latency issue.",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "d57df93a76f42de94e4c9a1626e17f3c"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "fraud-detection",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "fraud-detection",
+        "score": 8.46,
+        "findings": [
+         "trace_self_time: mean self-time per span 27ms -> 887ms",
+         "latency: p95 92ms -> 1343ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 33,
+       "base_traces": 47,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 13.91,
+      "answered_after_s": 74.1,
+      "service_ok": true,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "fraud-detection",
+      "fault_type": "latency",
+      "answered_after_s": 74.1,
+      "service_ok": true,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": "fraud-detection",
+      "fault_type": "latency",
+      "summary": "fraud-detection: p95 92ms -> 1376ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "fraud-detection",
+        "signal": "latency",
+        "score": 3.8980109673915013,
+        "detail": "p95 92ms -> 1376ms"
+       }
+      ],
+      "compute_s": 0.04,
+      "answered_after_s": 120,
+      "service_ok": true,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "fraud-detection",
+      "fault_type": "latency",
+      "summary": "The fraud-detection service is experiencing a significant increase in mean self-time per span (954ms) and p95 latency (1376ms), causing a 27ms to 954ms increase in trace_self_time and a 92ms to 1376ms increase in latency.",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "d57df93a76f42de94e4c9a1626e17f3c"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "fraud-detection",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "fraud-detection",
+        "score": 8.6,
+        "findings": [
+         "trace_self_time: mean self-time per span 27ms -> 954ms",
+         "latency: p95 92ms -> 1376ms"
+        ]
+       },
+       {
+        "service": "valkey-cart",
+        "score": 4.14,
+        "findings": [
+         "trace_self_time: mean self-time per span 0ms -> 171ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 33,
+       "base_traces": 47,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 9.76,
+      "answered_after_s": 129.8,
+      "service_ok": true,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "fraud-detection",
+      "fault_type": "latency",
+      "answered_after_s": 129.8,
+      "service_ok": true,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": "fraud-detection",
+      "fault_type": "latency",
+      "summary": "fraud-detection: p95 92ms -> 1379ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "fraud-detection",
+        "signal": "latency",
+        "score": 3.9005073779648907,
+        "detail": "p95 92ms -> 1379ms"
+       }
+      ],
+      "compute_s": 0.03,
+      "answered_after_s": 240,
+      "service_ok": true,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "fraud-detection",
+      "fault_type": "latency",
+      "summary": "The fraud-detection service is experiencing a significant increase in mean self-time per span (973ms) and p95 latency (1379ms), indicating a severe latency issue.",
+      "evidence": [
+       {
+        "kind": "trace",
+        "ref": "9fe52227fcffc15a2f8ad31a36e32412"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "fraud-detection",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "fraud-detection",
+        "score": 8.63,
+        "findings": [
+         "trace_self_time: mean self-time per span 27ms -> 973ms",
+         "latency: p95 92ms -> 1379ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 35,
+       "base_traces": 47,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 7.19,
+      "answered_after_s": 247.2,
+      "service_ok": true,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "fraud-detection",
+      "fault_type": "latency",
+      "answered_after_s": 247.2,
+      "service_ok": true,
+      "type_ok": false
+     }
+    }
+   ]
+  },
+  {
+   "flag": "loadGeneratorFloodHomepage",
+   "variant": "on",
+   "accept_services": [
+    "frontend",
+    "frontend-proxy"
+   ],
+   "accept_types": [
+    "traffic"
+   ],
+   "injected": 1791347736.694719,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.09,
+      "answered_after_s": 60.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "frontend",
+      "fault_type": "traffic",
+      "summary": "The frontend service is experiencing a traffic surge, with a request rate increase from 34.4/s to 95.3/s ([E1]). This sudden spike in traffic is affecting other services, causing a potential bottleneck ([E1]).",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "frontend",
+       "fault_type": "traffic"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "frontend",
+        "score": 1.47,
+        "findings": [
+         "traffic: request rate 34.4/s -> 95.3/s"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 11.75,
+      "answered_after_s": 71.8,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "frontend",
+      "fault_type": "traffic",
+      "answered_after_s": 71.8,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.06,
+      "answered_after_s": 120.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "frontend",
+      "fault_type": "traffic",
+      "summary": "The frontend service is experiencing a sudden increase in request rate from 34.4/s to 118.5/s ([E1]), causing a significant spike in traffic. This is further exacerbated by the frontend-proxy service, which sees a request rate increase from 33.9/s to 75.1/s ([E2]).",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E2 is about frontend-proxy, not frontend"
+      ],
+      "llm_choice": {
+       "service": "frontend-proxy",
+       "fault_type": "traffic"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "frontend",
+        "score": 1.79,
+        "findings": [
+         "traffic: request rate 34.4/s -> 118.5/s"
+        ]
+       },
+       {
+        "service": "frontend-proxy",
+        "score": 1.15,
+        "findings": [
+         "traffic: request rate 33.9/s -> 75.1/s"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 36,
+       "base_traces": 36,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 10.28,
+      "answered_after_s": 130.3,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "frontend-proxy",
+      "fault_type": "traffic",
+      "answered_after_s": 130.3,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.09,
+      "answered_after_s": 240.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "frontend",
+      "fault_type": "traffic",
+      "summary": "The frontend service is experiencing a sudden increase in request rate from 34.4/s to 124.2/s ([E1]), causing a significant spike in traffic to the frontend-proxy service, which saw a decrease from 33.9/s to 78.5/s ([E2]). This traffic surge is affecting the overall performance of the system.",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E2 is about frontend-proxy, not frontend"
+      ],
+      "llm_choice": {
+       "service": "frontend-proxy",
+       "fault_type": "traffic"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "frontend",
+        "score": 1.85,
+        "findings": [
+         "traffic: request rate 34.4/s -> 124.2/s"
+        ]
+       },
+       {
+        "service": "frontend-proxy",
+        "score": 1.21,
+        "findings": [
+         "traffic: request rate 33.9/s -> 78.5/s"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 37,
+       "base_traces": 36,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 16.26,
+      "answered_after_s": 256.3,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "frontend-proxy",
+      "fault_type": "traffic",
+      "answered_after_s": 256.3,
+      "service_ok": true,
+      "type_ok": true
+     }
+    }
+   ]
+  },
+  {
+   "flag": "recommendationCacheFailure",
+   "variant": "on",
+   "accept_services": [
+    "recommendation"
+   ],
+   "accept_types": [
+    "memory",
+    "latency"
+   ],
+   "injected": 1791348143.1530921,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.09,
+      "answered_after_s": 60.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 1.8,
+      "answered_after_s": 61.9,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 61.9,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.06,
+      "answered_after_s": 120.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "recommendation",
+      "fault_type": "memory",
+      "summary": "The recommendation service is experiencing a memory issue, with memory usage increasing from 54MB to 523MB ([E1]). This is causing a significant increase in self-time per span, resulting in 1619ms mean self-time per span ([E2]), and is also originating 20/20 failing traces ([E3]).",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "max by (container_name) (max_over_time(container_memory_usage_total_bytes[120s]))"
+       },
+       {
+        "kind": "trace",
+        "ref": "cd7b26022f7ba9ab7bb08df5de34e039"
+       },
+       {
+        "kind": "trace",
+        "ref": "71057282c5581b3041e68e84840eda63"
+       },
+       {
+        "kind": "trace",
+        "ref": "d1e134cff771c20a9d1f924158ff263c"
+       },
+       {
+        "kind": "trace",
+        "ref": "cd7b26022f7ba9ab7bb08df5de34e039"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "recommendation",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "recommendation",
+        "score": 23.01,
+        "findings": [
+         "memory: memory 54MB -> 523MB",
+         "trace_self_time: mean self-time per span 1ms -> 1619ms",
+         "trace_error_origin: error originates here in 20/20 failing traces (0.0/min before -> 12.0/min)"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 60,
+       "base_traces": 58,
+       "error_traces": 20,
+       "base_error_traces": 0
+      },
+      "compute_s": 17.01,
+      "answered_after_s": 137.1,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "recommendation",
+      "fault_type": "latency",
+      "answered_after_s": 137.1,
+      "service_ok": true,
+      "type_ok": true
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": "recommendation",
+      "fault_type": "latency",
+      "summary": "recommendation: p95 32ms -> 150ms",
+      "evidence": [],
+      "verified": false,
+      "candidates": [
+       {
+        "service": "recommendation",
+        "signal": "latency",
+        "score": 2.2073389630854305,
+        "detail": "p95 32ms -> 150ms"
+       }
+      ],
+      "compute_s": 0.04,
+      "answered_after_s": 240,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2": {
+      "service": "recommendation",
+      "fault_type": "memory",
+      "summary": "The recommendation service is experiencing a memory issue, with memory usage increasing from 54MB to 523MB ([E1]). This is causing an increase in latency, with p95 latency increasing from 32ms to 150ms ([E4]), and also affecting other services with 26/28 failing traces ([E2]).",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "max by (container_name) (max_over_time(container_memory_usage_total_bytes[240s]))"
+       },
+       {
+        "kind": "promql",
+        "ref": "histogram_quantile(0.95, sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name, le) (traces_span_metrics_duration_milliseconds_bucket{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0))"
+       },
+       {
+        "kind": "trace",
+        "ref": "c0d29910a520bc6d39b603ace203cd62"
+       },
+       {
+        "kind": "trace",
+        "ref": "c9ccd3d2c2e24b6e03cec77fa61f589f"
+       },
+       {
+        "kind": "trace",
+        "ref": "87c747db50e3048bd6b763bc55c75596"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "recommendation",
+       "fault_type": "latency"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "recommendation",
+        "score": 21.67,
+        "findings": [
+         "memory: memory 54MB -> 523MB",
+         "trace_error_origin: error originates here in 26/28 failing traces (0.0/min before -> 7.1/min)",
+         "trace_self_time: mean self-time per span 1ms -> 177ms",
+         "latency: p95 32ms -> 150ms"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 57,
+       "base_traces": 58,
+       "error_traces": 28,
+       "base_error_traces": 0
+      },
+      "compute_s": 12.42,
+      "answered_after_s": 252.4,
+      "service_ok": true,
+      "type_ok": true
+     },
+     "v2_llm_choice": {
+      "service": "recommendation",
+      "fault_type": "latency",
+      "answered_after_s": 252.4,
+      "service_ok": true,
+      "type_ok": true
+     }
+    }
+   ]
+  },
+  {
+   "flag": "emailMemoryLeak",
+   "variant": "100x",
+   "accept_services": [
+    "email"
+   ],
+   "accept_types": [
+    "memory"
+   ],
+   "injected": 1791349717.6603181,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.17,
+      "answered_after_s": 60.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 2.54,
+      "answered_after_s": 62.7,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 62.7,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.03,
+      "answered_after_s": 120,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 1.48,
+      "answered_after_s": 121.5,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 121.5,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.06,
+      "answered_after_s": 240,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 1.45,
+      "answered_after_s": 241.5,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 241.5,
+      "service_ok": false,
+      "type_ok": false
+     }
+    }
+   ]
+  }
+ ],
+ "finished": 1791349077.8900375,
+ "notes": [
+  "emailMemoryLeak: taken from run-20261007-045921 (the original run overlapped a laptop sleep; telemetry had a gap).",
+  "productCatalogFailure: excluded. Its flag has targeting rules that return off for every product, so setting defaultVariant never injected the fault (in either run)."
+ ]
+}

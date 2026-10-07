@@ -1,0 +1,376 @@
+{
+ "started": 1791349161.5318806,
+ "model": "llama3.2",
+ "checkpoints": [
+  60,
+  120,
+  240
+ ],
+ "settle_s": 150,
+ "scenarios": [
+  {
+   "flag": "productCatalogFailure",
+   "variant": "on",
+   "accept_services": [
+    "product-catalog"
+   ],
+   "accept_types": [
+    "errors"
+   ],
+   "injected": 1791349315.137984,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.11,
+      "answered_after_s": 60.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "cart",
+      "fault_type": "traffic",
+      "summary": "The cart service is experiencing a traffic surge, with a request rate increasing from 1.8/s to 4.7/s ([E1]) and affecting other services through its high traffic rate of 6.5/s to 13.3/s ([E4])",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 60s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E4 is about product-catalog, not cart"
+      ],
+      "llm_choice": {
+       "service": "product-catalog",
+       "fault_type": "traffic"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "cart",
+        "score": 1.39,
+        "findings": [
+         "traffic: request rate 1.8/s -> 4.7/s"
+        ]
+       },
+       {
+        "service": "recommendation",
+        "score": 1.07,
+        "findings": [
+         "traffic: request rate 0.9/s -> 1.9/s"
+        ]
+       },
+       {
+        "service": "currency",
+        "score": 1.06,
+        "findings": [
+         "traffic: request rate 1.2/s -> 2.6/s"
+        ]
+       },
+       {
+        "service": "product-catalog",
+        "score": 1.03,
+        "findings": [
+         "traffic: request rate 6.5/s -> 13.3/s"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 100,
+       "base_traces": 105,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 17.76,
+      "answered_after_s": 77.9,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "product-catalog",
+      "fault_type": "traffic",
+      "answered_after_s": 77.9,
+      "service_ok": true,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.12,
+      "answered_after_s": 120.1,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "cart",
+      "fault_type": "traffic",
+      "summary": "The cart service is experiencing a traffic surge, with a 2.3x increase in request rate ([E1]) from 1.8/s to 4.1/s, affecting other services. This is due to a 2.1x decrease in request rate ([E2]) from 1.2/s to 0.6/s in the currency service.",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       },
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 120s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       }
+      ],
+      "verified": false,
+      "verification_problems": [
+       "cited E2 is about currency, not cart",
+       "number 2.3 not found in evidence",
+       "number 2.1 not found in evidence",
+       "number 0.6 not found in evidence"
+      ],
+      "llm_choice": {
+       "service": "cart",
+       "fault_type": "traffic"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "cart",
+        "score": 1.18,
+        "findings": [
+         "traffic: request rate 1.8/s -> 4.1/s"
+        ]
+       },
+       {
+        "service": "currency",
+        "score": 1.02,
+        "findings": [
+         "traffic: request rate 1.2/s -> 2.5/s"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 86,
+       "base_traces": 81,
+       "error_traces": 1,
+       "base_error_traces": 0
+      },
+      "compute_s": 24.12,
+      "answered_after_s": 144.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "cart",
+      "fault_type": "traffic",
+      "answered_after_s": 144.2,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.29,
+      "answered_after_s": 240.3,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": "cart",
+      "fault_type": "traffic",
+      "summary": "The cart service is experiencing a traffic surge, with a request rate increasing from 1.8/s to 4.0/s ([E1]). This is affecting other services, as the high traffic is causing a bottleneck ([E1]).",
+      "evidence": [
+       {
+        "kind": "promql",
+        "ref": "sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) - (sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"} offset 240s) or sum by (service_name) (traces_span_metrics_calls_total{span_kind=~\"SPAN_KIND_SERVER|SPAN_KIND_CONSUMER\"}) * 0)"
+       }
+      ],
+      "verified": true,
+      "verification_problems": [],
+      "llm_choice": {
+       "service": "cart",
+       "fault_type": "traffic"
+      },
+      "llm_error": null,
+      "candidates": [
+       {
+        "service": "cart",
+        "score": 1.14,
+        "findings": [
+         "traffic: request rate 1.8/s -> 4.0/s"
+        ]
+       }
+      ],
+      "trace_stats": {
+       "fault_traces": 57,
+       "base_traces": 55,
+       "error_traces": 1,
+       "base_error_traces": 0
+      },
+      "compute_s": 12.19,
+      "answered_after_s": 252.5,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "service": "cart",
+      "fault_type": "traffic",
+      "answered_after_s": 252.5,
+      "service_ok": false,
+      "type_ok": false
+     }
+    }
+   ]
+  },
+  {
+   "flag": "emailMemoryLeak",
+   "variant": "100x",
+   "accept_services": [
+    "email"
+   ],
+   "accept_types": [
+    "memory"
+   ],
+   "injected": 1791349717.6603181,
+   "checkpoints": [
+    {
+     "t": 60,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.17,
+      "answered_after_s": 60.2,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 2.54,
+      "answered_after_s": 62.7,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 62.7,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 120,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.03,
+      "answered_after_s": 120.0,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 1.48,
+      "answered_after_s": 121.5,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 121.5,
+      "service_ok": false,
+      "type_ok": false
+     }
+    },
+    {
+     "t": 240,
+     "v1": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "candidates": [],
+      "compute_s": 0.06,
+      "answered_after_s": 240.0,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2": {
+      "service": null,
+      "fault_type": null,
+      "summary": "no anomaly detected",
+      "evidence": [],
+      "verified": false,
+      "deterministic": null,
+      "candidates": [],
+      "trace_stats": {
+       "fault_traces": 30,
+       "base_traces": 30,
+       "error_traces": 0,
+       "base_error_traces": 0
+      },
+      "compute_s": 1.45,
+      "answered_after_s": 241.5,
+      "service_ok": false,
+      "type_ok": false
+     },
+     "v2_llm_choice": {
+      "answered_after_s": 241.5,
+      "service_ok": false,
+      "type_ok": false
+     }
+    }
+   ]
+  }
+ ],
+ "finished": 1791349959.1744337
+}
