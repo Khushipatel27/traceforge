@@ -20,8 +20,6 @@ The project combines distributed tracing, real-time metrics, centralized logging
 
 **The goal:** Transform raw observability data into actionable incident diagnoses while reducing the manual investigation required to identify failures across interconnected microservices.
 
-The implementation extends the open-source OpenTelemetry Demo with an incident-triage agent, a golden-signals baseline, deterministic evidence ranking, explanation verification, and a reproducible evaluation benchmark.
-
 ---
 
 ## 📊 v1 vs v2 — Performance Comparison
