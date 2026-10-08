@@ -1,329 +1,309 @@
 # 🔭 TraceForge
 
-![TraceForge — 17 services, 11 languages, 17 failure flags, traces, metrics, logs, AI triage](docs/images/hero.svg)
+### AI-Powered Observability, Root Cause Analysis & Automated Incident Triage
 
-![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-000000?logo=opentelemetry&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white) ![Jaeger](https://img.shields.io/badge/Jaeger-66CFE3?logo=jaeger&logoColor=black) ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?logo=prometheus&logoColor=white) ![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white) ![OpenSearch](https://img.shields.io/badge/OpenSearch-005EB8?logo=opensearch&logoColor=white) ![Kafka](https://img.shields.io/badge/Kafka-231F20?logo=apachekafka&logoColor=white) ![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C?logo=langchain&logoColor=white) ![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
+**17 Services | 11 Languages | 17 Failure Flags | Distributed Tracing | Metrics | Logs | AI-Powered Incident Diagnosis**
 
-TraceForge is an incident-triage agent on the [OpenTelemetry Astronomy Shop](https://github.com/open-telemetry/opentelemetry-demo). You flip a feature flag, the shop breaks in a known way, and the agent reads traces, metrics, and logs and says which service is actually at fault.
+![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Observability-blue)
+![Docker](https://img.shields.io/badge/Docker-Containerization-blue)
+![Jaeger](https://img.shields.io/badge/Jaeger-Distributed%20Tracing-orange)
+![Prometheus](https://img.shields.io/badge/Prometheus-Metrics-orange)
+![Grafana](https://img.shields.io/badge/Grafana-Dashboards-orange)
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![LangGraph](https://img.shields.io/badge/LangGraph-AI%20Agents-purple)
+![License](https://img.shields.io/badge/License-Apache%202.0-green)
 
+TraceForge is an end-to-end observability and AI-powered incident-triage platform built using the OpenTelemetry Astronomy Shop microservices ecosystem.
 
-| Already the public demo                                                     | What I made                                                  |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Microservices, instrumentation, collector, dashboards, failure flags, tests | Incident-triage agent (v2) and the v1 baseline               |
-| Jaeger, Prometheus, OpenSearch, Grafana, Kafka, flagd                       | Fault-injection benchmark and the numbers below              |
-| Storefront, load generator, feature-flag UI                                 | TraceForge name, diagrams, this README, load set to 20 users |
+The project combines distributed tracing, real-time metrics, centralized logging, fault injection, and a multi-agent AI diagnosis pipeline to identify service failures and explain their root causes.
 
+The platform demonstrates how complex distributed systems can be monitored, investigated, and diagnosed using telemetry-driven reasoning.
 
----
+**The goal:** Transform raw observability data into actionable incident diagnoses while reducing the manual investigation required to identify failures across interconnected microservices.
 
-## 📊 v1 vs v2
-
-v1 is a golden-signals baseline. It reads per-service error rate and p95 latency from Prometheus, the same two numbers a RED dashboard shows an on-call engineer, and blames whichever service moved most.
-
-v2 is the triage agent: a metrics specialist, a trace specialist, a log specialist, a ranking of that evidence, an LLM-written explanation, and a verification pass.
-
-Both ran against the same injected faults, one flagd flag at a time, and were asked "what's broken?" at 60, 120, and 240 seconds.
-
-![Evaluation loop: all flags off, inject fault, wait, diagnose with v1 and v2, score, recover](docs/images/eval-loop.svg)
-
-
-| Metric                                   | v1 (golden-signals baseline)  | v2 (triage agent)                    |
-| ---------------------------------------- | ----------------------------- | ------------------------------------ |
-| Root-cause service correctly identified  | 5/12                          | **8/12**                             |
-| Fault type correctly identified          | 4/12                          | **7/12**                             |
-| Time from fault injection to diagnosis   | 120 s median (5/12 diagnosed) | **80 s** median (8/12 diagnosed)     |
-| Answers citing a specific trace / metric | n/a — v1 cites nothing        | 3/12 verified (3/12 cite a trace ID) |
-
-
-Per fault, answer at 240 s:
-
-
-| Flag                           | Expected                           | v1                           | v2                           |
-| ------------------------------ | ---------------------------------- | ---------------------------- | ---------------------------- |
-| `paymentFailure`               | payment · errors                   | checkout / errors ❌          | payment / errors ✅           |
-| `paymentUnreachable`           | payment · errors                   | checkout / errors ❌          | payment / errors ✅           |
-| `cartFailure`                  | cart · errors                      | nothing found ❌              | nothing found ❌              |
-| `adFailure`                    | ad · errors                        | ad / errors ✅                | ad / errors ✅                |
-| `productCatalogLockContention` | product-catalog or DB · latency    | recommendation / latency ❌   | recommendation / latency ❌   |
-| `intlShippingSlowdown`         | shipping · latency                 | shipping / latency ✅         | shipping / latency ✅         |
-| `adHighCpu`                    | ad · cpu                           | shipping / latency ❌         | payment / memory ❌           |
-| `adManualGc`                   | ad · latency or cpu                | ad / latency ✅               | ad / latency ✅               |
-| `kafkaQueueProblems`           | kafka or a consumer · queue        | fraud-detection / latency 🟡 | fraud-detection / latency 🟡 |
-| `loadGeneratorFloodHomepage`   | frontend · traffic                 | nothing found ❌              | frontend / traffic ✅         |
-| `recommendationCacheFailure`   | recommendation · memory or latency | recommendation / latency ✅   | recommendation / memory ✅    |
-| `emailMemoryLeak`              | email · memory                     | nothing found ❌              | nothing found ❌              |
-
-
-✅ service and fault type right · 🟡 service right, fault type wrong · ❌ wrong service
-
-**Ablation.** Given the same evidence, llama3.2 choosing the root cause itself also scores 8/12. The 3B model adds no accuracy over the deterministic ranking, so it writes the explanation and does not pick the cause.
-
-### How to read the numbers
-
-- **12 faults is a small sample.** One more right answer moves a row by about 8 points.
-- **Dev and test overlap on two faults.** Most of v2's bugs were found by debugging the two payment faults, which are also in the benchmark. Those two results are partly on development data. The other 10 faults were not tuned on.
-- **v2's wins are specific.** It does better when errors propagate (v1 blames `checkout`, which only *shows* payment's errors; v2 follows them to where they start) and on traffic spikes (v1 does not look at request rate). On latency faults the two tie.
-- **Time to diagnosis is coarse.** Answers are taken at 60 / 120 / 240 s, so "80 s" means v2 was usually right at the first check. That time includes 7–37 s of v2's own compute, mostly the LLM on CPU.
-- **"Verified" is low because the check is stricter than the prompt.** The prompt asks the LLM to describe the effect on other services. The verifier rejects any citation that is not about the blamed service. 7 of the 9 failures are that mismatch. The rule was left as written after seeing the results. See [Known limitations](#known-limitations).
-- **Two faults were re-run or dropped, and the reason is recorded.** `emailMemoryLeak` is a re-run because the laptop slept during the first attempt. It missed both times. `productCatalogFailure` is excluded: its flag has targeting rules that return "off" for every product, so the harness never injected it.
-- Raw results: `[src/triage/results/final.json](src/triage/results/final.json)`. Reproduce with `[src/triage/run_eval.py](src/triage/README.md)` (about 90 minutes).
+This implementation builds upon the open-source OpenTelemetry Demo, which provides the microservices, instrumentation, observability infrastructure, and existing fault-injection scenarios. TraceForge extends that foundation with an incident-triage agent, a golden-signals baseline, deterministic evidence ranking, explanation verification, and a reproducible evaluation benchmark.
 
 ---
 
-## 💡 The shop
+## 📊 v1 vs v2 — Performance Comparison
 
-The Astronomy Shop is a storefront, cart, checkout, payment, shipping, recommendations, ads, and fraud detection, split across services in 11 languages. Every service is instrumented with OpenTelemetry. Telemetry goes through one Collector into Jaeger, Prometheus, OpenSearch, and Grafana.
+I implemented and evaluated two incident-diagnosis approaches to understand how AI-assisted telemetry analysis compares with conventional metrics-based monitoring.
 
-That system was already built. I used it as the thing to diagnose.
+### 🔹 v1 — Golden-Signals Baseline
 
-The part that makes the benchmark possible is the failure injection. Flip a feature flag and the system breaks in a specific way:
+The first version uses traditional observability metrics to identify potentially failing services.
 
-> *"Payment fails 50% of the time."* *"The email service leaks memory."*
-> *"Kafka consumers fall behind."* *"The product catalog DB hits lock contention."*
+It collects:
 
-Then you diagnose it from the telemetry alone.
+- Per-service error rates
+- 95th-percentile response latency (p95)
+- Prometheus metrics
+- Service-level performance changes
 
----
+The baseline identifies the service showing the largest relevant deviation in error rate or latency.
 
-## 🧠 v2 — the triage layer
+This represents the type of first-pass investigation an on-call engineer might perform using a conventional RED metrics dashboard.
 
-v1 puts the evidence on a dashboard. A person still has to find it. With `paymentFailure` on, the cause is in Jaeger, but you have to filter for error spans, follow them from `frontend` through `checkout` to `payment`, and check the error rate in Prometheus. v2 does that first pass. Code: `[src/triage/](src/triage/)`.
+### 🔹 v2 — AI-Powered Incident-Triage Agent
 
-![v2 triage pipeline: supervisor fans out to trace, metrics and log agents, then ranking, explanation and verification](docs/images/triage-pipeline.svg)
+The second version introduces an automated incident-triage pipeline that correlates multiple sources of telemetry.
 
+The pipeline includes:
 
-| Agent        | Reads               | Finds                                                                                                                     |
-| ------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Metrics      | Prometheus (PromQL) | error ratio, p95 latency, CPU, memory, Kafka lag, request-rate spikes, baseline vs. fault window                          |
-| Trace        | Jaeger API          | where errors **originate** (an error span with no failing child) and where time is **spent** (self-time per service)      |
-| Log          | OpenSearch          | error-log rate jumps per service, with a sample message                                                                   |
-| Verification | the evidence above  | the explanation names the blamed service, cites real evidence about it, and uses only numbers that appear in the evidence |
+- Metrics analysis specialist
+- Distributed tracing specialist
+- Centralized logging specialist
+- Deterministic evidence ranking
+- LLM-generated incident explanation
+- Evidence verification
 
+Instead of relying only on which service shows the largest error or latency increase, v2 investigates where failures originate and how they propagate across service dependencies.
 
-### Why it works this way
+### 🧪 Evaluation Methodology
 
-**The evidence decides. The LLM explains.** Every number is computed in Python. During development a 3B model, shown a correct ranking, overruled it and picked the service with the loudest symptom. The ablation above shows the model adds no accuracy, so it writes the incident summary and nothing else.
+Both versions were evaluated against the same fault-injection scenarios.
 
-**Error origin beats error volume.** Callers of a failing service show the same or higher error ratios. That is why v1 blames `checkout`. When traces show where errors start, other services' error symptoms are treated as propagation.
+Each experiment followed a controlled process:
 
-**Counters are diffed, not `increase()`d.** Span metrics reach Prometheus about once a minute, and an error counter only appears with the first error. `increase()` over a 1–2 minute window reads about 0 for exactly the series that matter. Diffing the counter against its value at the window start (missing = 0) does not.
+1. Disable all existing failure flags.
+2. Allow the system to return to normal operating conditions.
+3. Enable one fault-injection feature flag.
+4. Generate traffic through the simulated load generator.
+5. Collect traces, metrics, and logs.
+6. Execute v1 and v2 diagnostic pipelines.
+7. Evaluate diagnosis results at 60, 120, and 240 seconds.
+8. Compare predictions against the expected failure.
+9. Record accuracy, diagnosis time, and supporting evidence.
+10. Disable the injected fault and recover the environment.
 
-**The newest 20 seconds of traces are ignored.** Services export spans in batches, so a very recent trace is often missing its downstream half. A half-arrived trace looks like the caller failed on its own.
+### 📈 Benchmark Results
 
----
+| Metric | v1 — Golden-Signals Baseline | v2 — Triage Agent |
+|---|---|---|
+| Root-cause service correctly identified | 5/12 | 8/12 |
+| Fault type correctly identified | 4/12 | 7/12 |
+| Median time to diagnosis | 120 seconds | 80 seconds |
+| Verified evidence citations | Not supported | 3/12 |
+| Distributed tracing analysis | No | Yes |
+| Centralized log analysis | No | Yes |
+| CPU and memory analysis | No | Yes |
+| Traffic anomaly detection | No | Yes |
+| AI-generated explanations | No | Yes |
+| Evidence verification | No | Yes |
 
-## 🏗️ Architecture
+### 🎯 Key Results
 
-![TraceForge architecture: services, data stores, Kafka, flagd, and the OpenTelemetry Collector exporting to Jaeger, Prometheus, OpenSearch and Grafana](docs/images/architecture.svg)
+The evaluation demonstrated measurable improvements in automated incident diagnosis.
 
----
+- Root-cause identification improved from **5/12 to 8/12**.
+- Fault-type identification improved from **4/12 to 7/12**.
+- Median diagnosis time among correctly diagnosed incidents decreased from **120 seconds to 80 seconds**.
+- The system successfully identified failures that propagated through multiple microservices.
+- Distributed tracing provided additional context for separating root causes from downstream symptoms.
+- AI-generated summaries converted technical telemetry into more understandable incident explanations.
 
-## 🛠️ Tech stack
+These results represent a 12-scenario benchmark rather than a production-scale evaluation.
 
+### 🔍 Fault-by-Fault Results
 
-| Service                | Language             | Role                                  |
-| ---------------------- | -------------------- | ------------------------------------- |
-| 🛒 frontend            | TypeScript (Next.js) | Storefront UI + server-side API       |
-| 🚪 frontend-proxy      | Envoy                | Single entry point, routes to all UIs |
-| 💳 checkout            | Go                   | Orchestrates the order flow           |
-| 📦 product-catalog     | Go                   | Product data from PostgreSQL          |
-| 🛍️ cart               | C# (.NET)            | Cart state in Valkey                  |
-| 💰 payment             | JavaScript (Node.js) | Card charges                          |
-| 🚚 shipping            | Rust                 | Shipping quotes and tracking          |
-| 💱 currency            | C++                  | Currency conversion                   |
-| ✉️ email               | Ruby                 | Order confirmation emails             |
-| 🧾 quote               | PHP                  | Shipping cost calculation             |
-| ⭐ recommendation       | Python               | Product recommendations               |
-| 📢 ad                  | Java                 | Contextual ads                        |
-| 📊 accounting          | C# (.NET)            | Consumes orders from Kafka            |
-| 🕵️ fraud-detection    | Kotlin               | Consumes orders from Kafka            |
-| 🎚️ flagd + flagd-ui   | Go / Elixir          | Feature flags for fault injection     |
-| 🤖 agent, chatbot, mcp | Python (LangGraph)   | AI shopping assistant + MCP server    |
-| 🐝 load-generator      | Python (Locust)      | Simulated user traffic                |
+| Fault Injection | Expected Root Cause | v1 Diagnosis | v2 Diagnosis |
+|---|---|---|---|
+| `paymentFailure` | payment / errors | checkout / errors ❌ | payment / errors ✅ |
+| `paymentUnreachable` | payment / errors | checkout / errors ❌ | payment / errors ✅ |
+| `cartFailure` | cart / errors | Not detected ❌ | Not detected ❌ |
+| `adFailure` | ad / errors | ad / errors ✅ | ad / errors ✅ |
+| `productCatalogLockContention` | product-catalog or DB / latency | recommendation / latency ❌ | recommendation / latency ❌ |
+| `intlShippingSlowdown` | shipping / latency | shipping / latency ✅ | shipping / latency ✅ |
+| `adHighCpu` | ad / CPU | shipping / latency ❌ | payment / memory ❌ |
+| `adManualGc` | ad / latency or CPU | ad / latency ✅ | ad / latency ✅ |
+| `kafkaQueueProblems` | Kafka or consumer / queue | fraud-detection / latency 🟡 | fraud-detection / latency 🟡 |
+| `loadGeneratorFloodHomepage` | frontend / traffic | Not detected ❌ | frontend / traffic ✅ |
+| `recommendationCacheFailure` | recommendation / memory or latency | recommendation / latency ✅ | recommendation / memory ✅ |
+| `emailMemoryLeak` | email / memory | Not detected ❌ | Not detected ❌ |
 
+**Result interpretation:**
 
-These services are the Astronomy Shop. I did not write them.
+- ✅ Correct service and fault classification
+- 🟡 Correct service but incorrect fault classification
+- ❌ Incorrect or missing root-cause identification
 
+### 🧠 LLM Ablation Study
 
-| Layer                 | Technology                                                                                                   |
-| --------------------- | ------------------------------------------------------------------------------------------------------------ |
-| 📡 Telemetry pipeline | OpenTelemetry Collector                                                                                      |
-| 🔍 Traces             | Jaeger                                                                                                       |
-| 📈 Metrics            | Prometheus                                                                                                   |
-| 📜 Logs               | OpenSearch                                                                                                   |
-| 🖥️ Dashboards        | Grafana — 10 provisioned dashboards (APM, span metrics, exemplars, PostgreSQL, collector self-monitoring, …) |
-| 📨 Messaging          | Kafka                                                                                                        |
-| 🗄️ Storage           | PostgreSQL, Valkey                                                                                           |
-| 🐳 Deployment         | Docker Compose (Kubernetes via the upstream Helm chart)                                                      |
+I also evaluated whether allowing the language model to independently select the root cause improved performance.
 
+The experiment compared:
 
----
+1. Deterministic evidence-based ranking.
+2. LLM-based root-cause selection using the same evidence.
 
-## 💥 Failure scenarios
+The `llama3.2` model achieved the same root-cause accuracy of **8/12**.
 
-Every scenario is a flagd feature flag. Toggle it at `http://localhost:8080/feature/` and the fault starts immediately. These flags were already in the demo.
+This showed that allowing the model to override the evidence ranking did not improve accuracy in this benchmark.
 
+The final architecture therefore separates the responsibilities:
 
-| Flag                           | What breaks                                             |
-| ------------------------------ | ------------------------------------------------------- |
-| `paymentFailure`               | Payment charges fail n% of the time                     |
-| `paymentUnreachable`           | Payment service is unavailable                          |
-| `cartFailure`                  | Cart service fails n% of the time                       |
-| `failedReadinessProbe`         | Cart readiness probe fails                              |
-| `productCatalogFailure`        | Product catalog fails on a specific product             |
-| `productCatalogLockContention` | Lock contention on the product catalog database         |
-| `recommendationCacheFailure`   | Recommendation cache fails                              |
-| `adFailure`                    | Ad service fails                                        |
-| `adHighCpu`                    | High CPU load in the ad service                         |
-| `adManualGc`                   | Full manual garbage collections in the ad service       |
-| `emailMemoryLeak`              | Memory leak in the email service                        |
-| `kafkaQueueProblems`           | Kafka queue overload + consumer delay, then a lag spike |
-| `intlShippingSlowdown`         | International shipping responses are delayed            |
-| `imageSlowLoad`                | Frontend images load slowly                             |
-| `loadGeneratorFloodHomepage`   | Floods the frontend with requests                       |
-| `aiSlowResponse`               | Slow LLM responses in the agent service                 |
-| `aiRunawayAgent`               | Agent loops tool calls until its recursion limit        |
+- **Deterministic analysis identifies the root cause.**
+- **The LLM generates a readable explanation.**
+- **Verification checks the explanation against observed evidence.**
 
+This approach reduces dependence on unconstrained language-model predictions.
 
----
+### 📋 Evaluation Considerations
 
-## ⚡ Quick start
+The benchmark includes several important considerations.
 
-### Prerequisites
+- Only 12 valid failure scenarios were evaluated.
+- Two payment scenarios were also used during development and debugging.
+- Diagnostic results were checked at discrete intervals of 60, 120, and 240 seconds.
+- The v2 diagnostic process included approximately 7–37 seconds of LLM computation on CPU.
+- The evidence verifier used stricter citation requirements than the explanation-generation prompt.
+- The `emailMemoryLeak` scenario was repeated after an interrupted experiment.
+- `productCatalogFailure` was excluded because its targeting configuration prevented the intended fault from activating.
 
-- Docker Desktop (or Docker Engine + Compose v2)
-- **6 GB RAM** allocated to Docker minimum
+**Raw benchmark results:**
 
-### 1 — Clone
+[src/triage/results/final.json](src/triage/results/final.json)
 
-```bash
-git clone https://github.com/Khushipatel27/traceforge.git
-cd traceforge
-```
+**Evaluation implementation:**
 
-### 2 — Launch
-
-```bash
-make start            # full stack
-make start-minimal    # fewer services, lighter on RAM
-make start-agentic    # full stack + AI agent, chatbot and MCP server
-```
-
-Without `make` (for example on Windows):
-
-```bash
-docker compose --env-file .env --env-file .env.override -f compose.yaml -f compose.full.yaml -f compose.observability.yaml -f compose.extras.yaml up --force-recreate --remove-orphans --detach
-```
-
-### 3 — Open
-
-
-| UI                | URL                                                                  |
-| ----------------- | -------------------------------------------------------------------- |
-| 🛒 Storefront     | [http://localhost:8080](http://localhost:8080)                       |
-| 🖥️ Grafana       | [http://localhost:8080/grafana/](http://localhost:8080/grafana/)     |
-| 🔍 Jaeger         | [http://localhost:8080/jaeger/ui/](http://localhost:8080/jaeger/ui/) |
-| 🎚️ Feature flags | [http://localhost:8080/feature/](http://localhost:8080/feature/)     |
-| 🐝 Load generator | [http://localhost:8080/loadgen/](http://localhost:8080/loadgen/)     |
-
-
-### 4 — Break something
-
-1. Open the feature flag UI and turn on `paymentFailure`.
-2. Wait a minute for the load generator to place orders.
-3. In Jaeger, search service `checkout` with tag `error=true` and follow the span into `payment`.
-4. In Grafana, open the span metrics dashboard and watch the payment error rate climb.
-
-Stop everything with `make stop`.
+[src/triage/run_eval.py](src/triage/run_eval.py)
 
 ---
 
-## 🧪 Testing
+## 💡 The Shop — Distributed Microservices Environment
 
-Telemetry sanity tests run in a Dockerized pytest container on the same network as the stack, and query the backends directly to check that every service is producing telemetry. These tests belong to the demo.
+TraceForge operates on the OpenTelemetry Astronomy Shop, a distributed e-commerce application designed to demonstrate observability in complex microservices environments.
 
+The application includes:
 
-| Test file              | Checks                                       |
-| ---------------------- | -------------------------------------------- |
-| `test_traces.py`       | Each service emits traces to Jaeger          |
-| `test_traces_edges.py` | Expected service-to-service call edges exist |
-| `test_metrics.py`      | Each service emits metrics to Prometheus     |
-| `test_logs.py`         | Each service emits logs to OpenSearch        |
-| `test_collector.py`    | The collector pipeline itself is healthy     |
-| `test_agentic.py`      | AI agent / MCP telemetry                     |
+- Storefront and product browsing
+- Shopping cart management
+- Checkout orchestration
+- Payment processing
+- Shipping calculations
+- Currency conversion
+- Product recommendations
+- Advertisement services
+- Fraud detection
+- Accounting
+- Order confirmation emails
+- AI shopping assistance
 
+The environment consists of services implemented in multiple programming languages and connected through synchronous API communication, data stores, and asynchronous messaging.
 
-```bash
-make run-telemetry-tests            # full stack
-make run-telemetry-tests-minimal    # minimal stack
-make run-frontend-tests             # Cypress end-to-end tests for the storefront
-```
+Every instrumented service produces observability data through OpenTelemetry.
 
-### Triage benchmark (v1 vs v2)
+### 📡 Telemetry Collection
 
-Needs the stack running with `LOCUST_USERS=20` (already set in `.env.override`) and [Ollama](https://ollama.com) serving `llama3.2` on the host. Keep the machine awake. If it sleeps, the telemetry gets holes and that fault has to be re-run.
+The telemetry pipeline collects three primary types of operational data.
 
-```bash
-ollama pull llama3.2
-docker run --rm --network opentelemetry-demo -v "$PWD:/repo" -w /repo/src/triage \
-  python:3.12-slim python run_eval.py      # ~90 min, writes src/triage/results/
-```
+**1. Distributed Traces**
 
-See [src/triage/README.md](src/triage/README.md) for running a subset of faults.
+Traces capture requests traveling across multiple services and help identify:
 
----
+- Service dependencies
+- Error propagation
+- Slow operations
+- Latency bottlenecks
+- Failure origins
+- Request execution paths
 
-## 🔀 What I made
+**2. Metrics**
 
-I have not forked this. The demo was already a working shop, and I left it that way. The rows below are the only things I wrote.
+Metrics provide numerical measurements such as:
 
+- Request rates
+- Error ratios
+- Response latency
+- CPU consumption
+- Memory utilization
+- Kafka consumer lag
+- Service performance trends
 
-| Area                                                                               | Source                                                            |
-| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Microservices, instrumentation, collector config, dashboards, failure flags, tests | OpenTelemetry Demo, already in the repo                           |
-| Incident-triage agent (v2): metrics, trace and log agents, ranking, verification   | Written here — `[src/triage/](src/triage/)`                       |
-| Golden-signals baseline (v1) and the fault-injection benchmark                     | Written here — `[src/triage/run_eval.py](src/triage/run_eval.py)` |
-| Load raised to 20 simulated users                                                  | Written here — `.env.override`                                    |
-| TraceForge name, diagrams, this README                                             | Written here                                                      |
+**3. Logs**
 
+Centralized logs provide additional diagnostic information, including:
 
----
+- Error messages
+- Service exceptions
+- Application events
+- Failure patterns
+- Service-specific operational context
 
+The OpenTelemetry Collector processes and exports this information to the configured observability backends.
 
+### 💥 Fault Injection
 
-## ⚠️ Known limitations
+The environment includes feature flags that simulate operational failures.
 
-- **Heavy.** The full stack runs 20+ containers. Under 6 GB of Docker RAM, services get OOM-killed and the telemetry looks like a failure that is not one.
-- **Simulated traffic.** Load comes from Locust, so the pattern is more regular than real users. Anomalies stand out more cleanly than they would in production.
-- **One fault at a time.** The flags are meant to be tested individually. Combining them overlaps symptoms and makes attribution hard.
+Examples include:
 
-The limits below are about the triage agent. Knowing where it breaks is part of having built it.
+- Payment failures affecting a percentage of transactions
+- Unreachable payment services
+- Database lock contention
+- Memory leaks
+- Increased CPU usage
+- Slow shipping responses
+- Kafka consumer delays
+- Unexpected traffic spikes
 
-- **Resource faults get outranked by noise.** On `adHighCpu`, v2 measured `ad` going from 2.8 to 6.3 CPU cores, then ranked it third behind small memory and latency shifts elsewhere. Scores from different signal types are not on a comparable scale yet.
-- **Slow leaks fall under the thresholds.** `emailMemoryLeak` grew email's memory from 70 MB to 95 MB in four minutes, under the +30 MB alarm. A leak needs a growth-rate check over a longer window, not a before/after delta.
-- **Quiet faults stay invisible.** `cartFailure` only breaks `EmptyCart`, called once per completed order, so it never produced enough errors to clear the noise floor for either version.
-- **Database contention looks like everyone's fault.** Under `productCatalogLockContention` every caller hit the same 15 s timeout, and the service with the biggest p95 jump (`recommendation`) won. v2's trace agent saw the database self-time rise (1 ms to 4.2 s) and ranked it a close second.
-- **Queue faults get labelled as latency.** `kafkaQueueProblems` was traced to the right consumer (`fraud-detection`) but labelled latency, not queue lag. The lag metric is only exported by that one consumer and moved less than its latency.
-- **The verifier disagrees with the prompt.** The explanation prompt asks for the effect on other services. The verifier rejects citations about any service except the blamed one. That is why only 3/12 explanations verify. The fix is to require at least one citation about the blamed service, and still allow citations about the services it affected.
-- **The LLM runs on CPU.** Ollama does not use the laptop GPU here, so each explanation costs 7–37 s and slightly loads the system being diagnosed.
-
----
-
-## 🔮 Later
-
-- [x] Incident-triage agent: trace, metrics and log specialists, plus verification
-- [x] Reproducible fault-injection benchmark (one run per flag)
-- [ ] Normalise scores across signal types so CPU and memory faults are not outranked by latency noise
-- [ ] Growth-rate detection for slow memory leaks
-- [ ] Align the verifier with the prompt (allow citations about affected services) and re-measure
-- [ ] Inject `productCatalogFailure` through its targeting rule and add it back
-- [ ] Repeat the benchmark 3 times and report variance
-- [ ] SLO dashboard with error-budget burn-rate alerts per service
-- [ ] Alertmanager to triage-agent hook, so diagnosis starts from an alert
-- [ ] A written inject, detect, diagnose walkthrough for each failure flag
+By activating individual failure flags, I can create controlled incidents and evaluate whether the diagnosis pipeline correctly identifies their causes.
 
 ---
 
-## 📄 License
+## 🧠 v2 — Multi-Agent Incident-Triage System
 
-Apache License 2.0. See [LICENSE](./LICENSE). 
+The main TraceForge extension is the automated incident-triage layer.
+
+It uses telemetry collected from the distributed application to generate an evidence-backed root-cause diagnosis.
+
+The pipeline combines specialist analysis with deterministic ranking and language-model-generated explanations.
+
+### 🔄 Incident-Triage Workflow
+
+```text
+                  ┌──────────────────────┐
+                  │   Incident Trigger   │
+                  │   / Fault Injection  │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │   Triage Supervisor  │
+                  └──────────┬───────────┘
+                             │
+             ┌───────────────┼───────────────┐
+             │               │               │
+             ▼               ▼               ▼
+    ┌────────────────┐ ┌──────────────┐ ┌──────────────┐
+    │ Metrics Agent  │ │ Trace Agent  │ │  Log Agent   │
+    │                │ │              │ │              │
+    │  Prometheus    │ │    Jaeger    │ │  OpenSearch  │
+    └────────┬───────┘ └──────┬───────┘ └──────┬───────┘
+             │                │                │
+             └────────────────┼────────────────┘
+                              │
+                              ▼
+                   ┌────────────────────┐
+                   │  Evidence Ranking  │
+                   │  & Root Cause      │
+                   │  Identification    │
+                   └──────────┬─────────┘
+                              │
+                              ▼
+                   ┌────────────────────┐
+                   │ LLM Explanation    │
+                   │ Generation         │
+                   └──────────┬─────────┘
+                              │
+                              ▼
+                   ┌────────────────────┐
+                   │ Evidence           │
+                   │ Verification       │
+                   └──────────┬─────────┘
+                              │
+                              ▼
+                   ┌────────────────────┐
+                   │ Final Incident     │
+                   │ Diagnosis          │
+                   └────────────────────┘
